@@ -1,11 +1,5 @@
-library(VineCopula);library(copula)
-library(tidyverse) ; library(GeneralizedHyperbolic)
+library(tidyverse) ; library(GeneralizedHyperbolic) ; library(parallel)
 
-
-
-
-w <- 2*391;refit <- 20
-x <- BAC.returns$Return[1:(10*391+1)]
 
 
 rolling.nig <- function(data,window,refit.every,cl){
@@ -24,7 +18,7 @@ rolling.nig <- function(data,window,refit.every,cl){
     if("try-error" %in% class(fit)) par <- start else{par <- as.numeric(fit$param)}
     return(par)
   }
-  library(parallel)
+  
   
   parameters <- parApply(cl,intervals,MARGIN = 1,FUN = fitting) %>% t()
   
@@ -35,24 +29,6 @@ rolling.nig <- function(data,window,refit.every,cl){
 
 cl <- makePSOCKcluster(4)
 tic();fits <- rolling.nig(x,w,refit,cl);toc()
-
-f_local_BAC = function(x){dnig(x,param = fits[1,])}
-
-
-
-temp <- data.frame(x[1:w])
-
-h1 <- ggplot(temp,aes(temp$x.1.w.)) + geom_histogram(aes(y = stat(density)),
-                                                       color="blue", fill="blue",bins = 30) + 
-  xlim(c(-0.005,0.005)) + stat_function(
-    fun = f_local_BAC, 
-    #args = list(x = x, param = sd(df$x)), 
-    lwd = 1, 
-    col = 'red'
-  ) +
-  ggtitle("Histogram of Bank of America Returns")
-h1
-
 
 
 
