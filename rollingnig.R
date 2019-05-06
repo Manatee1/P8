@@ -21,11 +21,11 @@ rolling.nig <- function(data,window,refit.every,cl){
     return(par)
   }
   
-  #browser()
+  
   parameters <- parApply(cl,intervals,MARGIN = 1,FUN = fitting) %>% t()
   stopCluster(cl)
   
-
+  browser()
   times <- Time[intervals[,2]+1]
   result <- data.frame(times,parameters);colnames(result) <- c("Time","mu","delta","alpha","beta")
   
@@ -37,7 +37,7 @@ rolling.nig <- function(data,window,refit.every,cl){
 
 # x <- BAC.returns[1:(10*391),]; w <- 5*391;refit.every <- 391
 
-
+library(tictoc)
 cl <- makePSOCKcluster(20)
 tic();fits <- rolling.nig(BAC.returns,5*391,30,cl);toc()
 save(fits,file = "BAC_NiG_forecasts.Rdata")
