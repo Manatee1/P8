@@ -8,7 +8,7 @@ rolling.nig <- function(data,window,refit.every,cl){
   #browser()
   number <- ceiling((length(data)-window)/refit.every)
   intervals <- matrix(0,nrow = number,ncol = 2)
-  intervals[1,] <- c(1,window)
+  intervals[1,] <- c(1,window-1)
   for(i in 2:(number)){
     intervals[i,] <- intervals[i-1,] + refit.every
   }
@@ -38,9 +38,9 @@ rolling.nig <- function(data,window,refit.every,cl){
 # x <- BAC.returns[1:(10*391),]; w <- 5*391;refit.every <- 391
 
 
-cl <- makePSOCKcluster(4)
-tic();fits <- rolling.nig(BAC.returns[1:3910,],5*391,60,cl);toc()
-save(fits,file = "Rolling_forecasts.Rdata")
+cl <- makePSOCKcluster(20)
+tic();fits <- rolling.nig(BAC.returns,5*391,30,cl);toc()
+save(fits,file = "BAC_NiG_forecasts.Rdata")
 
 
 
