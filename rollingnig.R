@@ -2,17 +2,21 @@ library(tidyverse) ; library(GeneralizedHyperbolic) ; library(parallel)
 load("Clean_data.RData")
 
 
-rolling.nig <- function(data,window,refit.every,cl){
+rolling.nig <- function(data,window,refit,cl){
+  
+  Time <- data$Time ; data <- data$Return# Separating timestamps and returns
 
-  Time <- data$Time ; data <- data$Return
-  #browser()
-  number <- ceiling((length(data)-window)/refit.every)
+  number <- ceiling((length(data)-window)/refit) # Number of estimations required
+  
+  # Matrix of estimation window intervals.
   intervals <- matrix(0,nrow = number,ncol = 2)
   intervals[1,] <- c(1,window-1)
   for(i in 2:(number)){
-    intervals[i,] <- intervals[i-1,] + refit.every
+    intervals[i,] <- intervals[i-1,] + refit
   }
   
+  
+  # Function for estimation to be applied on all windows.
   fitting <- function(x){
     library(GeneralizedHyperbolic)
     start <- try(nigFitStart(data[x[1]:x[2]],startValues = "MoM",startMethodMoM = "Nelder-Mead"))
@@ -22,10 +26,11 @@ rolling.nig <- function(data,window,refit.every,cl){
     return(par)
   }
   
-  
+  # Parallel application of estimation function to windows.
   parameters <- parApply(cl,intervals,MARGIN = 1,FUN = fitting)
   stopCluster(cl)
   
+  # Check and fix weirdness.
   if(class(parameters) == "list"){
     parameters <- do.call(rbind,parameters)
     parameters <- parameters[,1:4]
@@ -37,6 +42,7 @@ rolling.nig <- function(data,window,refit.every,cl){
     return("Wrong parameter dimensions")
   }
   
+  # Add timestamps and combine objects
   times <- Time[intervals[,2]+1]
   result <- data.frame(times,parameters);colnames(result) <- c("Time","mu","delta","alpha","beta")
   
@@ -46,7 +52,7 @@ rolling.nig <- function(data,window,refit.every,cl){
 
 
 
-# x <- BAC.returns[1:(10*391),]; w <- 5*391;refit.every <- 391
+# x <- BAC.returns[1:(10*391),]; w <- 5*391;refit <- 391
 
 library(tictoc)
 cl <- makePSOCKcluster(20)
