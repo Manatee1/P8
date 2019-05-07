@@ -42,6 +42,8 @@ library(copula)
 
 Copula_Parallel = function(return_1, return_2, fit_1, fit_2, cl, window = 5*391, refit = 30, copula = tCopula){
   library(parallel)
+  return_1 <- return_1; return_2 <- return_2
+  fit_1 <- fit_1; fit_2 <- fit_2
   #browser()
   Interval_Matrix = function(data,window,refit){
     Time <- data$Time ; data <- data$Return
@@ -58,7 +60,7 @@ Copula_Parallel = function(return_1, return_2, fit_1, fit_2, cl, window = 5*391,
   Interval = Interval_Matrix(return_1, window, refit)
   
   Fit_Interval = function(i, r_1 = return_1, r_2 = return_2, f_1 = fit_1, f_2 = fit_2, cop = copula, Int = Interval){
-    browser()
+    #browser()
     library(GeneralizedHyperbolic);library(copula);
     I = Int[i,]
     
@@ -84,8 +86,10 @@ Copula_Parallel = function(return_1, return_2, fit_1, fit_2, cl, window = 5*391,
   }
   
   Result = parSapply(cl,1:nrow(Interval),function(x){Fit_Interval(x)})
+  
+  return(Result)
 }
 
-cl = makePSOCKcluster(20)
+cl = makePSOCKcluster(3)
 Cop_est <- Copula_Parallel(BAC.returns,WFC.returns,BAC_fit,WFC_fit,cl)
 stopCluster(cl)
