@@ -3,10 +3,10 @@
 # Load Data ---------------------------------------------------------------
 library(tidyverse) ; library(GeneralizedHyperbolic) ; library(parallel)
 
-{load("./P8/BAC_NiG_forecasts.RData")
+{load("BAC_NiG_forecasts.RData")
 BAC_fit = fits}
 
-{load("./P8/WFC_NiG_forecasts.RData")
+{load("WFC_NiG_forecasts.RData")
 WFC_fit = fits}
 
 rm(fits)
@@ -38,7 +38,7 @@ Interval = Interval_Matrix(BAC.returns, window,refit)
 # Copula Fit --------------------------------------------------------------
 library(copula)
 
-cl = makePSOCKcluster(4)
+
 
 Copula_Parallel = function(return_1, return_2, fit_1, fit_2, cl, window = 5*391, refit = 30, copula = tCopula){
   library(parallel)
@@ -62,8 +62,8 @@ Copula_Parallel = function(return_1, return_2, fit_1, fit_2, cl, window = 5*391,
     library(GeneralizedHyperbolic);library(copula);
     I = Int[i,]
     
-    start = r_1$Time[I[1]] %>% as.character()
-    end = r_1$Time[I[2]] %>% as.character()
+    start = as.character(r_1$Time[I[1]]) 
+    end = as.character(r_1$Time[I[2]])
     
     X = r_1[I[1]:I[2],2]
     Y = r_2[I[1]:I[2],2]
@@ -86,5 +86,6 @@ Copula_Parallel = function(return_1, return_2, fit_1, fit_2, cl, window = 5*391,
   Result = parSapply(cl,1:nrow(Interval),function(x){Fit_Interval(x)})
 }
 
-Copula_Parallel(BAC.returns,WFC.returns,BAC_fit,WFC_fit,cl)
-
+cl = makePSOCKcluster(20)
+Cop_est <- Copula_Parallel(BAC.returns,WFC.returns,BAC_fit,WFC_fit,cl)
+stopCluster(cl)
