@@ -73,8 +73,8 @@ Copula_Parallel = function(return_1, return_2, fit_1, fit_2, cl, window = 5*391,
     p_1 = unlist(f_1[i,2:5])
     p_2 = unlist(f_2[i,2:5])
     
-    U = pnig(X, param = p_1)
-    V = pnig(Y, param = p_2)
+    U = as.numeric(try(pnig(X, param = p_1)))
+    V = as.numeric(try(pnig(Y, param = p_2)))
     W = cbind(U,V)
     
     C = cop(dim = 2)
@@ -85,11 +85,14 @@ Copula_Parallel = function(return_1, return_2, fit_1, fit_2, cl, window = 5*391,
     return(c(start,end,theta))
   }
   
-  Result = parSapply(cl,1:nrow(Interval),function(x){Fit_Interval(x)})
+  Result = parSapply(cl,1:nrow(Interval),function(x){try(Fit_Interval(x))})
   
   return(Result)
 }
 
-cl = makePSOCKcluster(3)
+cl = makePSOCKcluster(20)
 Cop_est <- Copula_Parallel(BAC.returns,WFC.returns,BAC_fit,WFC_fit,cl)
 stopCluster(cl)
+
+save(Cop_est,file = "Estimated_Copula.RData")
+
