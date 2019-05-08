@@ -112,7 +112,7 @@ failed_index = which(failed == 1)
 Interval = Interval_Matrix(BAC.returns,5*391,30)
 
 Fit_Interval = function(i, r_1 = BAC.returns, r_2 = WFC.returns, f_1 = BAC_fit, f_2 = WFC_fit, cop = tCopula, Int = Interval){
-  browser()
+  #browser()
   library(GeneralizedHyperbolic);library(copula);
   I = Int[i,]
   
@@ -167,5 +167,7 @@ Fit_Interval = function(i, r_1 = BAC.returns, r_2 = WFC.returns, f_1 = BAC_fit, 
   return(c(start,end,theta))
 }
 
-sapply(failed_index,Fit_Interval)
+
+cl <- makePSOCKcluster(20)
+failed_copulas <- parSapply(cl = cl,failed_index,Fit_Interval,r_1 = BAC.returns, r_2 = WFC.returns, f_1 = BAC_fit, f_2 = WFC_fit, cop = tCopula, Int = Interval)
 
