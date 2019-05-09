@@ -160,14 +160,18 @@ Fit_Interval = function(i, r_1 = BAC.returns, r_2 = WFC.returns, f_1 = BAC_fit, 
   W = cbind(U,V)
   
   C = cop(dim = 2)
-  fit = suppressWarnings(fitCopula(C,W))
+  fit = suppressWarnings(try(fitCopula(C,W)))
   
-  theta = fit@copula@parameters
-  
-  return(c(start,end,theta))
+  if("try-error" %in% class(fit)){
+    return(rep("Failed",4))
+  }else{
+    theta = fit@copula@parameters
+    return(c(start,end,theta))
+  }
 }
 
 
 cl <- makePSOCKcluster(20)
 failed_copulas <- parSapply(cl = cl,failed_index,Fit_Interval,r_1 = BAC.returns, r_2 = WFC.returns, f_1 = BAC_fit, f_2 = WFC_fit, cop = tCopula, Int = Interval)
+
 
