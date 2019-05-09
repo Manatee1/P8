@@ -9,10 +9,10 @@ rolling.nig <- function(data,window,refit,cl){
   number <- ceiling((length(data)-window)/refit) # Number of estimations required
   
   # Matrix of estimation window intervals.
-  intervals <- matrix(0,nrow = number,ncol = 2)
+  intervals <- matrix(0,nrow = number,ncol = 4)
   intervals[1,] <- c(1,window-1)
   for(i in 2:(number)){
-    intervals[i,] <- intervals[i-1,] + refit
+    intervals[i,1:2] <- intervals[i-1,1:2] + refit
   }
   
   
@@ -22,19 +22,21 @@ rolling.nig <- function(data,window,refit,cl){
     start <- try(nigFitStart(data[x[1]:x[2]],startValues = "MoM",startMethodMoM = "Nelder-Mead"))
     if("try-error" %in% class(start)){return("Error in MoM")}
     fit <- try(nigFit(data[x[1]:x[2]], paramStart = start,method = "Nelder-Mead"))
-    if("try-error" %in% class(fit)){par <- start}else{par <- as.numeric(fit$param)}
+    if("try-error" %in% class(fit)){par <- (as.numeric(start$paramStart))}else{par <- (as.numeric(fit$param))}
     return(par)
   }
   
   # Parallel application of estimation function to windows.
   parameters <- parApply(cl,intervals,MARGIN = 1,FUN = fitting)
-  stopCluster(cl)
-  
+
+  #browser()
   # Check and fix weirdness.
   if(class(parameters) == "list"){
     parameters <- do.call(rbind,parameters)
     parameters <- parameters[,1:4]
   }
+  
+  parameters <- as.data.frame(parameters)
   
   if(dim(parameters)[2]>4 & dim(parameters)[1]<=4){
     parameters <- t(parameters)
@@ -54,15 +56,14 @@ rolling.nig <- function(data,window,refit,cl){
 
 # x <- BAC.returns[1:(10*391),]; w <- 5*391;refit <- 391
 
+
 library(tictoc)
 cl <- makePSOCKcluster(20)
-tic();fits <- rolling.nig(WFC.returns,5*391,30,cl);toc()
-save(fits,file = "WFC_NiG_forecasts.Rdata")
-
-
-
-
-
+tic();WFC_NiG_forecasts_month <- rolling.nig(WFC.returns,21*391,391,cl);toc()
+save(WFC_NiG_forecasts_month,file = "WFC_NiG_forecasts_month.Rdata")
+tic();BAC_NiG_forecasts_month <- rolling.nig(BAC.returns,21*391,391,cl);toc()
+save(BAC_NiG_forecasts_month,file = "BAC_NiG_forecasts_month.Rdata")
+stopCluster(cl)
 
 
 
