@@ -3,13 +3,14 @@
 # Load Data ---------------------------------------------------------------
 library(tidyverse) ; library(GeneralizedHyperbolic) ; library(parallel)
 
-{load("BAC_NiG_forecasts.RData")
-BAC_fit = fits}
+# {load("BAC_NiG_forecasts.RData")
+# BAC_fit = fits}
+# {load("WFC_NiG_forecasts.RData")
+# WFC_fit = fits}
+# rm(fits)
 
-{load("WFC_NiG_forecasts.RData")
-WFC_fit = fits}
-
-rm(fits)
+load("~/P8/WFC_NiG_forecasts_month.Rdata")
+load("~/P8/BAC_NiG_forecasts_month.Rdata")
 
 Interval_Matrix = function(data,window,refit){
   Time <- data$Time ; data <- data$Return
@@ -40,7 +41,7 @@ library(copula)
 
 
 
-Copula_Parallel = function(return_1, return_2, fit_1, fit_2, cl, window = 5*391, refit = 30, copula = tCopula){
+Copula_Parallel = function(return_1, return_2, fit_1, fit_2, cl, window, refit, copula = tCopula){
   library(parallel)
   return_1 <- return_1; return_2 <- return_2
   fit_1 <- fit_1; fit_2 <- fit_2
@@ -120,15 +121,15 @@ Copula_Parallel = function(return_1, return_2, fit_1, fit_2, cl, window = 5*391,
 }
 
 cl = makePSOCKcluster(20)
-Cop_est <- Copula_Parallel(BAC.returns,WFC.returns,BAC_fit,WFC_fit,cl)
+Cop_est <- Copula_Parallel(BAC.returns,WFC.returns,BAC_NiG_forecasts_month,WFC_NiG_forecasts_month,cl,window = window,refit = refit)
 stopCluster(cl)
 
 save(Cop_est,file = "Estimated_Copula_month.RData")
 
 
 # Fit Failed --------------------------------------------------------------
-
-load("Estimated_Copula_month.RData")
+# 
+# load("Estimated_Copula_month.RData")
 
 failed = rep(0, length(Cop_est))
 for(i in 1:length(Cop_est)){if("try-error" %in% class(Cop_est[[i]])){failed[i] = 1}}
@@ -136,12 +137,31 @@ sum(failed)
 plot(failed)
 
 index = 1:length(Cop_est)
-failed_index = which(failed == 1) 
+failed_index = which(failed == 1)
 
-Interval = Interval_Matrix(BAC.returns,5*391,30)
+Interval = Interval_Matrix(BAC.returns,window,refit)
 
 
 cl <- makePSOCKcluster(20)
-failed_copulas <- parSapply(cl = cl,failed_index,Fit_Interval,r_1 = BAC.returns, r_2 = WFC.returns, f_1 = BAC_fit, f_2 = WFC_fit, cop = tCopula, Int = Interval)
+failed_copulas <- parSapply(cl = cl,failed_index,Fit_Interval,r_1 = BAC.returns, r_2 = WFC.returns, 
+                            f_1 = BAC_NiG_forecasts_month, f_2 = WFC_NiG_forecasts_month,
+                            cop = tCopula, Int = Interval)
 stopCluster(cl)
 save(failed_copulas,file = "failed_copulas_month.rdata")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
