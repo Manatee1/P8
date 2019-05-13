@@ -12,6 +12,7 @@ library(tidyverse) ; library(GeneralizedHyperbolic) ; library(parallel)
 load("~/P8/WFC_NiG_forecasts_month.Rdata")
 load("~/P8/BAC_NiG_forecasts_month.Rdata")
 
+
 Interval_Matrix = function(data,window,refit){
   Time <- data$Time ; data <- data$Return
   #browser()
@@ -125,6 +126,38 @@ Cop_est <- Copula_Parallel(BAC.returns,WFC.returns,BAC_NiG_forecasts_month,WFC_N
 stopCluster(cl)
 
 save(Cop_est,file = "Estimated_Copula_month.RData")
+load("Estimated_Copula_month.RData")
+
+cl = makePSOCKcluster(20)
+Cop_est <- Copula_Parallel(BAC.returns,AIG.returns,BAC_NiG_forecasts_month,AIG_NiG_forecasts_month,cl,window = window,refit = refit)
+stopCluster(cl)
+
+save(Cop_est,file = "Estimated_Copula_AIG-BAC.RData")
+
+load("WFC_NiG_5min.Rdata")
+load("BAC_NiG_5min.Rdata")
+load("AIG_NiG_5min.Rdata")
+load("Clean_data_5min.Rdata")
+
+library(tictoc)
+window <- 21*78 ; refit <- 78
+Interval = Interval_Matrix(BAC.returns.5min, window,refit)
+cl = makePSOCKcluster(20)
+{tic();Cop_est <- Copula_Parallel(BAC.returns.5min,WFC.returns.5min,BAC_NiG_5min,WFC_NiG_5min,
+                                  cl,window = window,refit = refit);toc()}
+save(Cop_est,file = "Estimated_Copula_5min.RData")
+stopCluster(cl)
+
+
+cl = makePSOCKcluster(20)
+{tic();Cop_est_AIG_BAC <- Copula_Parallel(BAC.returns.5min,AIG.returns.5min,BAC_NiG_5min,AIG_NiG_5min,
+                                  cl,window = window,refit = refit);toc()}
+save(Cop_est_AIG_BAC,file = "Estimated_Copula_5min_AIG.RData")
+stopCluster(cl)
+
+
+
+
 
 
 # Fit Failed --------------------------------------------------------------

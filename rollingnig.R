@@ -1,5 +1,7 @@
 library(tidyverse) ; library(GeneralizedHyperbolic) ; library(parallel)
 load("Clean_data.RData")
+load("Clean_data_5min.rdata")
+rownames(AIG.5min) <- 1:length(AIG.5min)
 
 
 rolling.nig <- function(data,window,refit,cl){
@@ -54,23 +56,28 @@ rolling.nig <- function(data,window,refit,cl){
 
 
 
-# x <- BAC.returns[1:(10*391),]; w <- 5*391;refit <- 391
-
-
 library(tictoc)
 cl <- makePSOCKcluster(20)
 tic();WFC_NiG_forecasts_month <- rolling.nig(WFC.returns,21*391,391,cl);toc()
 save(WFC_NiG_forecasts_month,file = "WFC_NiG_forecasts_month.Rdata")
 tic();BAC_NiG_forecasts_month <- rolling.nig(BAC.returns,21*391,391,cl);toc()
 save(BAC_NiG_forecasts_month,file = "BAC_NiG_forecasts_month.Rdata")
+AIG_NiG_forecasts_month <- rolling.nig(AIG.returns,21*391,391,cl);toc()
+save(AIG_NiG_forecasts_month,file = "AIG_NiG_forecasts_month.Rdata")
 stopCluster(cl)
 
 
 
-
-
-
-
+window <- 21*78 ; refit <- 78
+library(tictoc)
+cl <- makePSOCKcluster(20)
+tic();WFC_NiG_5min <- rolling.nig(WFC.returns.5min,window,refit,cl);toc()
+save(WFC_NiG_5min,file = "WFC_NiG_5min.Rdata")
+tic();BAC_NiG_5min <- rolling.nig(BAC.returns.5min,window,refit,cl);toc()
+save(BAC_NiG_5min,file = "BAC_NiG_5min.Rdata")
+AIG_NiG_5min <- rolling.nig(AIG.returns.5min,window,refit,cl);toc()
+save(AIG_NiG_5min,file = "AIG_NiG_5min.Rdata")
+stopCluster(cl)
 
 
 
