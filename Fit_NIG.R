@@ -1,6 +1,6 @@
 library(tidyverse) ; library(GeneralizedHyperbolic) ; library(parallel)
 load("Clean_data.RData")
-load("Clean_data_5min.rdata")
+load("Rdata/Clean_data_5min.rdata")
 rownames(AIG.5min) <- 1:length(AIG.5min)
 
 
@@ -20,9 +20,23 @@ rolling.nig <- function(data,window,refit,cl){
   
   # Function for estimation to be applied on all windows.
   fitting <- function(x){
-    library(GeneralizedHyperbolic)
-    start <- try(nigFitStart(data[x[1]:x[2]],startValues = "MoM",startMethodMoM = "Nelder-Mead"))
-    if("try-error" %in% class(start)){return("Error in MoM")}
+    library(GeneralizedHyperbolic);    dat <- data[x[1]:x[2]]
+    
+    #Method of moments:
+    S <- skewness(dat);    sigma <- sd(dat);    mean <- mean(dat);    kurt <- kurtosis(dat)
+    
+    rho <- 3*(kurt-3)/S^2 - 4
+    mu <- mean - 3*sigma/(rho*S)
+    delta <- (3*sigma*sqrt(rho-1))/(abs(S)*rho)
+    alpha <- (3*sqrt(rho))/(sigma*(rho-1)*abs(S))
+    beta <- 3/(sigma*(rho-1)*S)
+    
+    start <- c(mu,delta,alpha,beta)
+    
+    #start <- try(nigFitStart(data[x[1]:x[2]],startValues = "MoM",startMethodMoM = "Nelder-Mead"))
+    #if("try-error" %in% class(start)){return("Error in MoM")}
+    
+    
     fit <- try(nigFit(data[x[1]:x[2]], paramStart = start,method = "Nelder-Mead"))
     if("try-error" %in% class(fit)){par <- (as.numeric(start$paramStart))}else{par <- (as.numeric(fit$param))}
     return(par)
@@ -79,5 +93,6 @@ AIG_NiG_5min <- rolling.nig(AIG.returns.5min,window,refit,cl);toc()
 save(AIG_NiG_5min,file = "AIG_NiG_5min.Rdata")
 stopCluster(cl)
 
+BAC_NiG_5min
 
 

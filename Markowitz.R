@@ -12,16 +12,7 @@ Interval_Matrix = function(data,window,refit){
   return(intervals)
 }
 
-load("Clean_data.RData")
 
-rm(AIG,BAC,WFC.data,AIG.returns)
-
-# Subsetting Data ---------------------------------------------------------
-
-window = 21*391
-refit = 391
-
-Interval = Interval_Matrix(BAC.returns, window,refit)
 
 Min_var_pf <- function(data1,data2,intervals){
   
@@ -34,7 +25,7 @@ Min_var_pf <- function(data1,data2,intervals){
     return(weights)
   }
   #browser()
-
+  
   
   weights <- apply(X = intervals,MARGIN = 1,FUN = markowitz)
   
@@ -60,6 +51,17 @@ Min_var_pf <- function(data1,data2,intervals){
   return(list(Weights = weights,PF_returns = PF_returns,Profit = exp(sum(PF_returns[,2]))-1))
 }
 
+# 1min  ---------------------------------------------------------
+
+load("Rdata/Clean_data.RData")
+
+rm(AIG,BAC,WFC.data,AIG.returns)
+
+window = 21*391
+refit = 391
+
+Interval = Interval_Matrix(BAC.returns, window,refit)
+
 
 Markowitz_portfolio <- Min_var_pf(WFC.returns,BAC.returns,Interval)
 
@@ -76,6 +78,37 @@ ggplot(data = Markowitz_portfolio$Weights) + geom_line(aes(x = Time,y = w1,group
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+# 5min --------------------------------------------------------------------
+
+load("Rdata/Clean_data_5min.RData")
+rm(AIG.5min,BAC.5min,WFC.5min,AIG.returns.5min)
+
+
+window = 21*78
+refit = 78
+
+Interval = Interval_Matrix(BAC.returns.5min, window,refit)
+
+
+Markowitz_portfolio <- Min_var_pf(WFC.returns.5min,BAC.returns.5min,Interval)
+
+
+
+ggplot(data = Markowitz_portfolio$Weights) + geom_line(aes(x = Time,y = w1,group = 1,colour = "WFC")) +
+  geom_line(aes(x = Time,y = w2,group = 1,colour = "BAC")) + ylim(c(-0.2,1.2)) + ylab("Weights") +
+  theme(legend.title = element_blank() ) + geom_hline(yintercept = 0.5)# +
+#scale_color_manual(values = c("Red","Blue"))
 
 
 
