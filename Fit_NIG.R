@@ -1,12 +1,12 @@
 library(tidyverse) ; library(GeneralizedHyperbolic) ; library(parallel)
-load("Clean_data.RData")
-load("Rdata/Clean_data_5min.rdata")
-rownames(AIG.5min) <- 1:length(AIG.5min)
+#load("Clean_data.RData")
+
+load("Rdata/Clean_Data_5minutes.rdata")
 
 
 rolling.nig <- function(data,window,refit,cl){
-  
-  Time <- data$Time ; data <- data$Returns# Separating timestamps and returns
+  #browser()
+  Time <- pull(data,Time) ; data <- pull(data,Returns) # Separating timestamps and returns
 
   number <- ceiling((length(data)-window)/refit) # Number of estimations required
   
@@ -75,18 +75,17 @@ rolling.nig <- function(data,window,refit,cl){
 
 
 
-window <- 21*78 ; refit <- 78
 library(tictoc)
 cl <- makePSOCKcluster(20)
-tic();WFC_NiG_5min <- rolling.nig(WFC_5minute,window,refit,cl);toc()
+tic();WFC_NiG_5min <- rolling.nig(WFC_5minute,Window,Refit,cl);toc()
 save(WFC_NiG_5min,file = "WFC_NiG_5min.Rdata")
-tic();BAC_NiG_5min <- rolling.nig(BAC_5minute,window,refit,cl);toc()
+tic();BAC_NiG_5min <- rolling.nig(BAC_5minute,Window,Refit,cl);toc()
 save(BAC_NiG_5min,file = "BAC_NiG_5min.Rdata")
-AIG_NiG_5min <- rolling.nig(AIG_5minute,window,refit,cl);toc()
+tic();AIG_NiG_5min <- rolling.nig(AIG_5minute,Window,Refit,cl);toc()
 save(AIG_NiG_5min,file = "AIG_NiG_5min.Rdata")
 stopCluster(cl)
 
-BAC_NiG_5min
+
 
 # ;    sigma <- sd(dat);    mean <- mean(dat);
 # 
