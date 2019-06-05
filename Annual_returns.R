@@ -12,7 +12,7 @@ annual_return <- function(data,year){
   Return <- exp(sum(New_data[["Returns"]]))-1
   return(Return)
 }
-dat <- annual_return(BAC_5minute,2005)
+dat <- annual_return(BAC_5minute[(Window):99303,],2005)
 
 returns <- matrix(0,nrow = 3,ncol = 5)
 for(i in 2005:2009){
