@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1559041753142.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1739001419",
+    "id" : "4D67402C",
+    "lastKnownWriteTime" : 1559041920,
+    "last_content_update" : 1559041920708,
+    "path" : "C:/Users/Thoma/Dropbox/Projektgruppe/P8/R filer/P8/Draw_Samples.R",
+    "project_path" : "Draw_Samples.R",
+    "properties" : {
+        "cursorPosition" : "19,1",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

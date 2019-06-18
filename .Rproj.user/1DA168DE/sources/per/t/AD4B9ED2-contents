@@ -1,0 +1,5 @@
+data <- rnorm(450);data <- data.frame(1:450,data)
+
+library(tidyverse)
+ggplot(data,aes(x = data)) + geom_histogram(aes(y = ..density..),fill = "white",color = "black")+
+  stat_function(fun = dnorm)

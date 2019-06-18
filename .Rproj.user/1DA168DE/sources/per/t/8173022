@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1559041944416.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3458967912",
+    "id" : "8173022",
+    "lastKnownWriteTime" : 1557993875,
+    "last_content_update" : 1557993875,
+    "path" : "C:/Users/Thoma/Dropbox/Projektgruppe/P8/R filer/P8/Find_CVaR_Weights.R",
+    "project_path" : "Find_CVaR_Weights.R",
+    "properties" : {
+        "cursorPosition" : "20,1",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
